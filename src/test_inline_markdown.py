@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from inline_markdown import split_nodes_delimiter
+from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 
 class TestInlineMarkdown(unittest.TestCase):
     def test_split_nodes_delimiter_code(self):
@@ -56,3 +56,18 @@ class TestInlineMarkdown(unittest.TestCase):
         self.assertEqual(split_nodes_delimiter([node], None, TextType.LINK), [
                                                     TextNode("This is text with a link", TextType.LINK, "www.mlb.com")
                                                 ])
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        self.assertEqual(extract_markdown_images(text), [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")])
+    def test_extract_markdown_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        self.assertEqual(extract_markdown_links(text), [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")])
+    def test_extract_markdown_images_extra_spaces(self):
+        text = "This is text with a ![rick roll]( https://i.imgur.com/aKaOqIh.gif ) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        self.assertEqual(extract_markdown_images(text), [("rick roll", " https://i.imgur.com/aKaOqIh.gif "), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")])
+    def test_extract_markdown_images_image_and_link(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        self.assertEqual(extract_markdown_images(text), [("rick roll", "https://i.imgur.com/aKaOqIh.gif")])
+    def test_extract_markdown_links_link_and_image(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and image ![to youtube](https://www.youtube.com/@bootdotdev)"
+        self.assertEqual(extract_markdown_links(text), [("to boot dev", "https://www.boot.dev")])
