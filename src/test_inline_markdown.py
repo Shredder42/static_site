@@ -1,7 +1,13 @@
 import unittest
 
 from textnode import TextNode, TextType
-from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from inline_markdown import (
+    split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
+    extract_markdown_links,
+    extract_markdown_images,
+)
 
 class TestInlineMarkdown(unittest.TestCase):
     def test_split_nodes_delimiter_code(self):
@@ -71,3 +77,57 @@ class TestInlineMarkdown(unittest.TestCase):
     def test_extract_markdown_links_link_and_image(self):
         text = "This is text with a link [to boot dev](https://www.boot.dev) and image ![to youtube](https://www.youtube.com/@bootdotdev)"
         self.assertEqual(extract_markdown_links(text), [("to boot dev", "https://www.boot.dev")])
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+        "This is text with an image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+        TextType.TEXT,
+        )
+        self.assertEqual(split_nodes_image([node]), [
+    TextNode("This is text with an image ", TextType.TEXT),
+    TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+    TextNode(" and ", TextType.TEXT),
+    TextNode(
+        "to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev"
+    ),
+    ])
+    def test_split_image_single(self):
+        node = TextNode(
+            "![image](https://www.example.COM/IMAGE.PNG)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("image", TextType.IMAGE, "https://www.example.COM/IMAGE.PNG"),
+            ],
+            new_nodes,
+        )
+    def test_split_nodes_image_2_nodes(self):
+        node = TextNode(
+        "This is text with an image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+        TextType.TEXT,
+        )
+        node2 = TextNode("This is text with a *italic* word", TextType.TEXT)
+        self.assertEqual(split_nodes_image([node, node2]), [
+    TextNode("This is text with an image ", TextType.TEXT),
+    TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+    TextNode(" and ", TextType.TEXT),
+    TextNode(
+        "to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev"
+    ),
+    TextNode("This is text with a *italic* word", TextType.TEXT)
+    ])
+    def test_split_nodes_link(self):
+        node = TextNode(
+        "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+        TextType.TEXT,
+        )
+        self.assertEqual(split_nodes_link([node]), [
+    TextNode("This is text with a link ", TextType.TEXT),
+    TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+    TextNode(" and ", TextType.TEXT),
+    TextNode(
+        "to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"
+    ),
+    ])
