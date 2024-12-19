@@ -38,9 +38,9 @@ def block_to_block_type(block):
             if not line.startswith("* "):
                 return block_type_paragraph
         return block_type_ulist
-    if block.startswith("_ "):
+    if block.startswith("- "):
         for line in lines:
-            if not line.startswith("_ "):
+            if not line.startswith("- "):
                 return block_type_paragraph
         return block_type_ulist
     if block.startswith("1. "):
@@ -149,11 +149,11 @@ def quote_to_html_node(block):
     children = text_to_children(content)
     return ParentNode("blockquote", children)
 
-markdown = '''### *DOGGY!* wings
+markdown = '''### *My DOGGY!* 
 
-ghost is my **dog**### *DOGGY!* wings
+ghost is my **dog**### *DOG!* bone
 
-* **alex** is the best
+* **ghost** is the best
 
 and here is an image ![image text](path/to/image.png)
 
@@ -161,29 +161,14 @@ and here is an image ![image text](path/to/image.png)
 ghost.bark()
 alex.soccer()
 ```
-def text_node_to_html_node(text_node):
-    match text_node.text_type:
-        case TextType.TEXT:
-            return LeafNode(None, text_node.text)
-        case TextType.BOLD:
-            return LeafNode('b', text_node.text)
-        case TextType.ITALIC:
-            return LeafNode('i', text_node.text)
-        case TextType.CODE:
-            return LeafNode('code', text_node.text)
-        case TextType.LINK:
-            return LeafNode('a', text_node.text, {'href': text_node.url})
-        case TextType.IMAGE:
-            return LeafNode('img', '', {'src': text_node.url, 'alt': text_node.text})
-        case _:
-            raise Exception("Invalid text type")
 1. zombie is *here*
 2. friend with a [link text](https:///url.com)
 
 >ghost is 
 >the best dog'''
 # markdown = '''### heading'''
-# print(markdown_to_html_node(markdown))
+# print(markdown_to_html_node(markdown).to_html())
+
 '''
 Alex written fuctions
 
