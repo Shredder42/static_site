@@ -20,7 +20,7 @@ def copy_files_recursive(source_dir_path, dest_dir_path):
 Alex written functions
 
 def copy_directory(source, destination, initial_call=True):
-    if initial_call:
+    if initial_call:http://localhost:8888/
         shutil.rmtree(destination)
         os.mkdir(destination)
 
